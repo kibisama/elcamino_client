@@ -10,7 +10,6 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
-import ForgotPassword from "./components/ForgotPassword";
 import ColorModeSelect from "../shared-theme/ColorModeSelect";
 import Logo from "./components/Logo";
 
@@ -61,15 +60,6 @@ export default function SignIn(props) {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   const handleSubmit = (event) => {
     if (emailError || passwordError) {
@@ -169,7 +159,6 @@ export default function SignIn(props) {
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
-          <ForgotPassword open={open} handleClose={handleClose} />
           <Button
             type="submit"
             fullWidth
