@@ -11,7 +11,11 @@ import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import ColorModeSelect from "../shared-theme/ColorModeSelect";
-import Logo from "./components/Logo";
+import Logo from "../Logo";
+import { postLogin } from "../../lib/client";
+import { enqueueSnackbar } from "notistack";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../reduxjs@toolkit/global";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -55,42 +59,60 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
-export default function SignIn(props) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
+export default function SignIn() {
+  const dispatch = useDispatch();
+  const [usernameError, setUsernameError] = React.useState(false);
+  const [usernameErrorMessage, setUsernameErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
 
-  const handleSubmit = (event) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (usernameError || passwordError) {
       return;
     }
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+    try {
+      const result = await postLogin({
+        username: data.get("username"),
+        password: data.get("password"),
+      });
+      const { refresh_token, access_token, user } = result.data;
+      localStorage.setItem("elcamino_client_access_token", access_token);
+      localStorage.setItem("elcamino_client_refresh_token", refresh_token);
+      dispatch(setUser(user));
+    } catch (e) {
+      let msg = e.message;
+      switch (e.status) {
+        case 401:
+          msg = "Unauthorized";
+          break;
+        default:
+      }
+      enqueueSnackbar(msg, {
+        variant: "error",
+      });
+    }
   };
 
   const validateInputs = () => {
-    const email = document.getElementById("email");
+    const username = document.getElementById("username");
     const password = document.getElementById("password");
 
     let isValid = true;
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
+    if (!username.value) {
+      setUsernameError(true);
+      setUsernameErrorMessage("Please enter a valid username.");
       isValid = false;
     } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
+      setUsernameError(false);
+      setUsernameErrorMessage("");
     }
 
-    if (!password.value || password.value.length < 6) {
+    if (!password.value) {
       setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
+      setPasswordErrorMessage("Please enter a valid password.");
       isValid = false;
     } else {
       setPasswordError(false);
@@ -128,15 +150,15 @@ export default function SignIn(props) {
           <FormControl>
             <FormLabel>Username</FormLabel>
             <TextField
-              error={emailError}
-              helperText={emailErrorMessage}
+              error={usernameError}
+              helperText={usernameErrorMessage}
               id="username"
               name="username"
               autoFocus
               required
               fullWidth
               variant="outlined"
-              color={emailError ? "error" : "primary"}
+              color={usernameError ? "error" : "primary"}
             />
           </FormControl>
           <FormControl>
