@@ -1,10 +1,10 @@
+import React from "react";
 import { alpha } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import AppNavbar from "./components/AppNavbar";
 import Header from "./components/Header";
-import MainGrid from "./components/MainGrid";
 import SideMenu from "./components/SideMenu";
 import AppTheme from "../shared-theme/AppTheme";
 import {
@@ -13,6 +13,10 @@ import {
   datePickersCustomizations,
   treeViewCustomizations,
 } from "./theme/customizations";
+import { getUser } from "../../lib/client";
+import { useDispatch } from "react-redux";
+import { Outlet, useNavigate } from "react-router-dom";
+import { setUserData } from "../../reduxjs@toolkit/global";
 
 const xThemeComponents = {
   ...chartsCustomizations,
@@ -22,12 +26,25 @@ const xThemeComponents = {
 };
 
 export default function Dashboard(props) {
-  const { user } = props;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  React.useEffect(() => {
+    (async function () {
+      try {
+        const result = await getUser();
+        const { id, name, stationCodes } = result.data;
+        dispatch(setUserData({ id, name, stationCodes }));
+      } catch (e) {
+        navigate("/signin");
+      }
+    })();
+  }, []);
+
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
       <CssBaseline enableColorScheme />
       <Box sx={{ display: "flex" }}>
-        <SideMenu user={user} />
+        <SideMenu />
         <AppNavbar />
         {/* Main content */}
         <Box
@@ -49,8 +66,8 @@ export default function Dashboard(props) {
               mt: { xs: 8, md: 0 },
             }}
           >
-            <Header />
-            <MainGrid />
+            {/* <Header /> */}
+            <Outlet />
           </Stack>
         </Box>
       </Box>

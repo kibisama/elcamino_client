@@ -11,6 +11,7 @@ import CardAlert from "./CardAlert";
 import OptionsMenu from "./OptionsMenu";
 import Logo from "../../Logo";
 import LogoutButton from "./LogoutButton";
+import { useSelector } from "react-redux";
 
 const drawerWidth = 240;
 
@@ -25,7 +26,8 @@ const Drawer = styled(MuiDrawer)({
   },
 });
 
-export default function SideMenu({ user }) {
+export default function SideMenu() {
+  const { name, id } = useSelector((s) => s.global);
   return (
     <Drawer
       variant="permanent"
@@ -71,7 +73,7 @@ export default function SideMenu({ user }) {
       >
         <Avatar
           sizes="small"
-          alt={user}
+          alt={name}
           // src="/static/images/avatar/7.jpg"
           sx={{ width: 36, height: 36 }}
         />
@@ -80,10 +82,10 @@ export default function SideMenu({ user }) {
             variant="body2"
             sx={{ fontWeight: 500, lineHeight: "16px" }}
           >
-            {user}
+            {name}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
-            {user}
+            {id}
           </Typography>
         </Box>
         <LogoutButton />

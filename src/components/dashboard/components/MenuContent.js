@@ -8,8 +8,15 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import HelpRoundedIcon from "@mui/icons-material/HelpRounded";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const mainListItems = [{ text: "Deliveries", icon: <LocalShippingIcon /> }];
+const mainListItems = [
+  {
+    href: "/dashboard/deliveries",
+    text: "Deliveries",
+    icon: <LocalShippingIcon />,
+  },
+];
 
 const secondaryListItems = [
   { text: "Settings", icon: <SettingsRoundedIcon /> },
@@ -18,12 +25,17 @@ const secondaryListItems = [
 ];
 
 export default function MenuContent() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   return (
     <Stack sx={{ flexGrow: 1, p: 1, justifyContent: "space-between" }}>
       <List dense>
         {mainListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: "block" }}>
-            <ListItemButton selected={index === 0}>
+            <ListItemButton
+              onClick={() => navigate(item.href)}
+              selected={pathname === item.href}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>

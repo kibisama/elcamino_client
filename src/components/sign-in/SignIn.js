@@ -16,6 +16,7 @@ import { postLogin } from "../../lib/client";
 import { enqueueSnackbar } from "notistack";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../reduxjs@toolkit/global";
+import { useNavigate } from "react-router-dom";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -60,6 +61,7 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function SignIn() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [usernameError, setUsernameError] = React.useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = React.useState("");
@@ -77,10 +79,11 @@ export default function SignIn() {
         username: data.get("username"),
         password: data.get("password"),
       });
-      const { refresh_token, access_token, user } = result.data;
+      const { refresh_token, access_token, _id } = result.data;
       localStorage.setItem("elcamino_client_access_token", access_token);
       localStorage.setItem("elcamino_client_refresh_token", refresh_token);
-      dispatch(setUser(user));
+      dispatch(setUser(_id));
+      navigate("/dashboard");
     } catch (e) {
       let msg = e.message;
       switch (e.status) {
