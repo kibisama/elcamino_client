@@ -51,3 +51,5 @@ client.interceptors.response.use(
 export const refreshToken = (body) => client.post("auth", body);
 export const postLogin = (body) => client.post("auth/login", body);
 export const getUser = () => client.get("user/info");
+export const getDeliveries = ({ invoiceCode, date }) =>
+  client.get(`user/deliveries/${invoiceCode}/${date}`);

@@ -1,5 +1,3 @@
-"use client";
-
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Breadcrumbs, { breadcrumbsClasses } from "@mui/material/Breadcrumbs";
@@ -9,7 +7,6 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import NavigateNextRoundedIcon from "@mui/icons-material/NavigateNextRounded";
 import { Link } from "react-router";
-import useDocumentTitle from "../../../../../hooks/useDocumentTitle";
 
 const PageContentHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -53,7 +50,6 @@ function PageContainer({
   actions = null,
   extraActions = null,
 }) {
-  useDocumentTitle(title);
   return (
     <Container sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <Stack sx={{ flex: 1, my: 2 }} spacing={2}>
@@ -93,7 +89,13 @@ function PageContainer({
             <ExtraPageHeaderToolbar>{extraActions}</ExtraPageHeaderToolbar>
           )}
         </Stack>
-        <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           {children}
         </Box>
       </Stack>

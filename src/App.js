@@ -9,6 +9,7 @@ import { refreshToken } from "./lib/client";
 import Deliveries from "./components/dashboard/components/Deliveries";
 
 const App = () => {
+  document.title = "Elcamino Pharmacy";
   const navigate = useNavigate();
   React.useEffect(() => {
     const refresh_token = localStorage.getItem("elcamino_client_refresh_token");

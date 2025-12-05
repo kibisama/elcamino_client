@@ -1,93 +1,59 @@
 import * as React from "react";
 import dayjs from "dayjs";
-import { Box, Button, IconButton, Stack, Tooltip } from "@mui/material";
-import { DataGrid, GridActionsCellItem, useGridApiRef } from "@mui/x-data-grid";
-import PrintIcon from "@mui/icons-material/Print";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import { Box, Stack, Select, MenuItem, IconButton } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
+// import PrintIcon from "@mui/icons-material/Print";
+// import RefreshIcon from "@mui/icons-material/Refresh";
 import PageContainer from "./PageContainer";
-import AppButton from "../AppButton";
-// import {
-//   getDeliveryLogItems,
-//   getDeliverySessions,
-//   postDeliveryQR,
-//   postDeliveryLog,
-//   unsetDeliveryStation,
-//   reverseDelivery,
-// } from "../../../../../lib/api/client";
+import { getDeliveries } from "../../../lib/client";
 import { enqueueSnackbar } from "notistack";
 // import DatePickerSm from "../../../../inputs/DatePickerSm";
+import CustomDatePicker from "./CustomDatePicker";
+import { useSelector } from "react-redux";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 const rowHeight = 52;
 
-export default function Deliveries({ section }) {
-  const apiRef = useGridApiRef();
+export default function Deliveries() {
   const [rows, setRows] = React.useState([]);
   const [date, setDate] = React.useState(dayjs());
-  const [sessions, setSessions] = React.useState([]);
-  const [session, setSession] = React.useState("0");
+  const [stations, setStations] = React.useState([]);
+  const [station, setStation] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
-  const handlePrint = React.useCallback(
-    (section, date, session) =>
-      window.open(
-        `/print/deliveries/${section}/${date.format("MMDDYYYY")}/${session}`,
-        "_blank"
-      ),
-    []
-  );
+  const { stationCodes } = useSelector((s) => s.global);
+  React.useEffect(() => {
+    if (stationCodes.length > 0) {
+      setStations(stationCodes);
+      setStation(stationCodes[0]);
+    }
+  }, [stationCodes]);
 
-  const getLogs = React.useCallback(
-    (date, session) => {
+  const getRows = React.useCallback(() => {
+    if (date && station) {
       setIsLoading(true);
       (async () => {
         try {
-          const { data } = await getDeliveryLogItems(
-            section,
-            date.format("MMDDYYYY"),
-            session
-          );
-          setRows(data.data);
+          const { data } = await getDeliveries({
+            invoiceCode: station,
+            date: date.format("MMDDYYYY"),
+          });
+          setRows(data);
+          console.log(data);
           setIsLoading(false);
         } catch (e) {
-          console.error(e);
+          if (e.status !== 404) {
+            console.error(e);
+            enqueueSnackbar(e.message, { variant: "error" });
+          }
           setRows([]);
           setIsLoading(false);
         }
       })();
-    },
-    [section]
-  );
-  const getSessions = React.useCallback(() => {
-    (async () => {
-      try {
-        const { data } = await getDeliverySessions(
-          section,
-          date.format("MMDDYYYY")
-        );
-        setSessions(data.data);
-      } catch (e) {
-        console.error(e);
-        setSessions([]);
-      }
-    })();
-  }, [date, section]);
-  const focusRef = React.useRef(null);
-  React.useEffect(() => {
-    if (focusRef.current) {
-      focusRef.current.focus();
     }
-  }, [section]);
+  }, [date, station]);
   React.useEffect(() => {
-    getSessions();
-    getLogs(date, session === "0" ? "0" : session.session);
-  }, [date, session, getLogs, getSessions]);
-  React.useEffect(() => {
-    setSession("0");
-  }, [section]);
-
-  const handleRefresh = React.useCallback(
-    () => getLogs(date, session === "0" ? "0" : session.session),
-    [getLogs, date, session]
-  );
+    getRows();
+  }, [getRows]);
 
   const columns = React.useMemo(
     () => [
@@ -137,11 +103,6 @@ export default function Deliveries({ section }) {
         width: 60,
       },
       {
-        field: "plan",
-        headerName: "Plan",
-        width: 80,
-      },
-      {
         field: "patPay",
         headerName: "Copay",
         type: "number",
@@ -150,88 +111,54 @@ export default function Deliveries({ section }) {
     ],
     []
   );
-  const handleChangeDate = React.useCallback(
-    (date, context) => {
-      if (!context.validationError) {
-        if (date) {
-          const day = dayjs(date);
-          setDate(day);
-          getLogs(day, session === "0" ? "0" : session.session);
-        } else {
-          setDate(null);
-        }
+  const handleChangeDate = React.useCallback((date, context) => {
+    if (!context.validationError) {
+      if (date) {
+        const day = dayjs(date);
+        setDate(day);
+      } else {
+        setDate(null);
       }
-    },
-    [getLogs, session]
-  );
+    }
+  }, []);
+  const handleChangeStation = React.useCallback((e) => {
+    setStation(e.target.value);
+  }, []);
 
   return (
     <PageContainer
-      breadcrumbs={[{ title: "Deliveries" }, { title: "" }]}
-      title={section}
+      title="Deliveries"
       actions={
         <Stack direction="row" alignItems="center" spacing={1}>
           <IconButton
-            disabled={isLoading || session === "0"}
+            disabled={isLoading}
             size="small"
-            aria-label="print"
-            onClick={() =>
-              handlePrint(
-                section,
-                date,
-                session === "0" ? "0" : session.session
-              )
-            }
+            aria-label="refresh"
+            onClick={getRows}
           >
-            <PrintIcon />
+            <RefreshIcon />
           </IconButton>
-          <Tooltip title="Reload data" placement="right" enterDelay={1000}>
-            <div>
-              <IconButton
-                disabled={isLoading}
-                size="small"
-                aria-label="refresh"
-                onClick={handleRefresh}
-              >
-                <RefreshIcon />
-              </IconButton>
-            </div>
-          </Tooltip>
-          <AppButton children={<NoteAddIcon />} onClick={postLog} />
         </Stack>
       }
       extraActions={
         <Stack direction="row" alignItems="center" spacing={1}>
-          <DatePickerSm value={date} onChange={handleChangeDate} />
-          {sessions.map((v, i) => (
-            <Button
-              onClick={() => setSession(v)}
-              size="small"
-              sx={{
-                width: 120,
-                color: session === v ? "primary.main" : "text.secondary",
-              }}
-              children={v.session}
-              key={i}
-            />
-          ))}
-          <Button
-            onClick={() => setSession("0")}
+          <CustomDatePicker value={date} onChange={handleChangeDate} />
+          <Select
             size="small"
-            sx={{
-              width: 120,
-              color: session === "0" ? "primary.main" : "text.secondary",
-            }}
-            children={
-              date.isSame(dayjs(), "d") ? "New Session" : "Not Delivered"
-            }
-          />
+            value={station}
+            onChange={handleChangeStation}
+            name="station"
+            sx={{ width: "22ch" }}
+          >
+            {stations.map((v) => (
+              <MenuItem value={v}>{v}</MenuItem>
+            ))}
+          </Select>
         </Stack>
       }
     >
       <Box sx={{ flex: 1, width: "100%" }}>
         <DataGrid
-          apiRef={apiRef}
           autoPageSize
           columns={columns}
           rows={rows}
@@ -242,13 +169,7 @@ export default function Deliveries({ section }) {
           pageSizeOptions={[]}
           sx={{
             maxHeight: rowHeight * 100,
-            "& .returned": { textDecoration: "line-through" },
           }}
-          getRowClassName={(params) =>
-            session !== "0" &&
-            params.row.logHistory?.includes(session.logId) &&
-            "returned"
-          }
           slotProps={{
             loadingOverlay: {
               variant: "circular-progress",
@@ -260,7 +181,6 @@ export default function Deliveries({ section }) {
           }}
         />
       </Box>
-      <div tabIndex="-1" ref={focusRef} />
     </PageContainer>
   );
 }
