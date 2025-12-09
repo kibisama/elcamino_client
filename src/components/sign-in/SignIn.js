@@ -85,6 +85,7 @@ export default function SignIn() {
       dispatch(setUser(_id));
       navigate("/dashboard");
     } catch (e) {
+      console.error(e);
       const { message, status } = e;
       let msg = message;
       switch (status) {
