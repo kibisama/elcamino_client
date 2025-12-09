@@ -85,12 +85,14 @@ export default function SignIn() {
       dispatch(setUser(_id));
       navigate("/dashboard");
     } catch (e) {
-      let msg = e.message;
-      switch (e.status) {
+      const { message, status } = e;
+      let msg = message;
+      switch (status) {
         case 401:
           msg = "Unauthorized";
           break;
         default:
+          msg = "Internal Server Error";
       }
       enqueueSnackbar(msg, {
         variant: "error",
