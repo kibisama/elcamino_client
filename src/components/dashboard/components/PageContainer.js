@@ -1,3 +1,5 @@
+"use client";
+
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Breadcrumbs, { breadcrumbsClasses } from "@mui/material/Breadcrumbs";

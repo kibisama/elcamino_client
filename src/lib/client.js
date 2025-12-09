@@ -1,7 +1,10 @@
 import axios from "axios";
 
 const client = axios.create();
-client.defaults.baseURL = "/api";
+client.defaults.baseURL =
+  process.env.NODE_ENV === "development"
+    ? process.env.REACT_APP_API_URL
+    : "/api";
 client.interceptors.request.use(
   (req) => {
     const access_token = localStorage.getItem("elcamino_client_access_token");
@@ -16,7 +19,7 @@ client.interceptors.response.use(
   (res) => res,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 419 && !originalRequest._retry) {
+    if (error.response?.status === 419 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const refresh_token = localStorage.getItem(

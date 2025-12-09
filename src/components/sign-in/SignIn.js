@@ -85,7 +85,6 @@ export default function SignIn() {
       dispatch(setUser(_id));
       navigate("/dashboard");
     } catch (e) {
-      console.error(e);
       const { message, status } = e;
       let msg = message;
       switch (status) {
@@ -93,7 +92,9 @@ export default function SignIn() {
           msg = "Unauthorized";
           break;
         default:
-          msg = "Internal Server Error";
+          if (!msg) {
+            msg = "Network Error";
+          }
       }
       enqueueSnackbar(msg, {
         variant: "error",
