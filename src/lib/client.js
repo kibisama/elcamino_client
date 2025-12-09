@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const client = axios.create();
-client.defaults.baseURL = process.env.REACT_APP_CLIENT_API_ADDRESS;
+client.defaults.baseURL = "api";
 client.interceptors.request.use(
   (req) => {
     const access_token = localStorage.getItem("elcamino_client_access_token");
