@@ -32,7 +32,7 @@ const App = () => {
     } else {
       navigate("/signin");
     }
-  }, []);
+  }, [navigate]);
   return (
     <AppTheme>
       <CssBaseline enableColorScheme>

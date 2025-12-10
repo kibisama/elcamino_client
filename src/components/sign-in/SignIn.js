@@ -91,6 +91,9 @@ export default function SignIn() {
         case 401:
           msg = "Unauthorized";
           break;
+        case 409:
+          msg = "User already logged in.";
+          break;
         default:
           if (!msg) {
             msg = "Network Error";
