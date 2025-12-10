@@ -35,7 +35,6 @@ export default function Deliveries() {
             date: date.format("MMDDYYYY"),
           });
           setRows(data);
-          console.log(data);
           setIsLoading(false);
         } catch (e) {
           if (e.status !== 404) {
