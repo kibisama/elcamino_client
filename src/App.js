@@ -26,6 +26,8 @@ const App = () => {
           );
           navigate("/dashboard");
         } catch (e) {
+          localStorage.removeItem("elcamino_client_access_token");
+          localStorage.removeItem("elcamino_client_refresh_token");
           navigate("/signin");
         }
       })();
