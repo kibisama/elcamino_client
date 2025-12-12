@@ -37,7 +37,7 @@ export default function Dashboard(props) {
         navigate("/signin");
       }
     })();
-  }, [dispatch, navigate]);
+  }, []);
 
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
