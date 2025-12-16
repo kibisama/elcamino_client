@@ -5,6 +5,7 @@ client.defaults.baseURL =
   process.env.NODE_ENV === "development"
     ? process.env.REACT_APP_API_URL
     : "/api";
+client.defaults.timeout = 5000;
 client.interceptors.request.use(
   (req) => {
     const access_token = localStorage.getItem("elcamino_client_access_token");
