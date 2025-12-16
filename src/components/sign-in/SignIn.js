@@ -180,7 +180,6 @@ export default function SignIn() {
               type="password"
               id="password"
               autoComplete="current-password"
-              autoFocus
               required
               fullWidth
               variant="outlined"
