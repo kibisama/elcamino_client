@@ -8,6 +8,7 @@ import { enqueueSnackbar } from "notistack";
 import CustomDatePicker from "./CustomDatePicker";
 import { useSelector } from "react-redux";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import PrintIcon from "@mui/icons-material/Print";
 
 const rowHeight = 52;
 
@@ -18,6 +19,10 @@ export default function Deliveries() {
   const [station, setStation] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const { stationCodes } = useSelector((s) => s.global);
+  const handlePrint = React.useCallback(
+    () => window.open(`/print/${station}/${date.format("MMDDYYYY")}`, "_blank"),
+    [station, date]
+  );
   React.useEffect(() => {
     if (stationCodes.length > 0) {
       setStations(stationCodes);
@@ -126,6 +131,14 @@ export default function Deliveries() {
       title="Deliveries"
       actions={
         <Stack direction="row" alignItems="center" spacing={1}>
+          <IconButton
+            disabled={rows.length === 0}
+            size="small"
+            aria-label="print"
+            onClick={handlePrint}
+          >
+            <PrintIcon />
+          </IconButton>
           <IconButton
             disabled={isLoading}
             size="small"

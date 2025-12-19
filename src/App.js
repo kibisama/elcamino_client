@@ -7,6 +7,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import { SnackbarProvider } from "notistack";
 import { refreshToken } from "./lib/client";
 import Deliveries from "./components/dashboard/components/Deliveries";
+import PrintDeliveries from "./components/print/Deliveries";
 
 const App = () => {
   document.title = "Elcamino Pharmacy";
@@ -24,7 +25,9 @@ const App = () => {
             "elcamino_client_refresh_token",
             new_refresh_token
           );
-          navigate("/dashboard");
+          if (document.location.pathname.startsWith("/signin")) {
+            navigate("/dashboard");
+          }
         } catch (e) {
           localStorage.removeItem("elcamino_client_access_token");
           localStorage.removeItem("elcamino_client_refresh_token");
@@ -40,6 +43,7 @@ const App = () => {
       <CssBaseline enableColorScheme>
         <SnackbarProvider>
           <Routes>
+            <Route path="/print/:station/:date" element={<PrintDeliveries />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/dashboard" element={<Dashboard />}>
               <Route path="/dashboard/deliveries" element={<Deliveries />} />
