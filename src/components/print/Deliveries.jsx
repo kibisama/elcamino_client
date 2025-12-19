@@ -100,10 +100,10 @@ export default function DeliveryReceipt() {
           <TableHead>
             <TableRow>
               <TableCellHeader sx={{ width: "8%" }}>Time</TableCellHeader>
-              <TableCellHeader sx={{ width: "8%" }}>Rx Date</TableCellHeader>
+              <TableCellHeader sx={{ width: "10%" }}>Rx Date</TableCellHeader>
               <TableCellHeader sx={{ width: "8%" }}>Rx Number</TableCellHeader>
-              <TableCellHeader sx={{ width: "34%" }}>Patient</TableCellHeader>
-              <TableCellHeader sx={{ width: "34%" }}>
+              <TableCellHeader sx={{ width: "30%" }}>Patient</TableCellHeader>
+              <TableCellHeader sx={{ width: "36%" }}>
                 Description
               </TableCellHeader>
               <TableCellHeader sx={{ width: "8%" }}>Qty</TableCellHeader>
@@ -113,10 +113,10 @@ export default function DeliveryReceipt() {
             {data.map((v) => (
               <TableRow key={v.id}>
                 <TableCellBody>{dayjs(v.time).format("hh:mm")}</TableCellBody>
-                <TableCellBody>{v.rxNumber}</TableCellBody>
                 <TableCellBody>
                   {dayjs(v.rxDate).format("M/D/YYYY")}
                 </TableCellBody>
+                <TableCellBody>{v.rxNumber}</TableCellBody>
                 <TableCellBody align="left">{v.patient}</TableCellBody>
                 <TableCellBody align="left">{v.drugName}</TableCellBody>
                 <TableCellBody>{v.rxQty}</TableCellBody>
