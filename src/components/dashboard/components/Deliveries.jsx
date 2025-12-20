@@ -9,6 +9,8 @@ import CustomDatePicker from "./CustomDatePicker";
 import { useSelector } from "react-redux";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import PrintIcon from "@mui/icons-material/Print";
+import PrintDeliveries from "../../print/Deliveries";
+import { useReactToPrint } from "react-to-print";
 
 const rowHeight = 52;
 
@@ -19,10 +21,8 @@ export default function Deliveries() {
   const [station, setStation] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const { stationCodes } = useSelector((s) => s.global);
-  const handlePrint = React.useCallback(
-    () => window.open(`/print/${station}/${date.format("MMDDYYYY")}`, "_blank"),
-    [station, date]
-  );
+  const contentRef = React.useRef(null);
+  const handlePrint = useReactToPrint({ contentRef });
   React.useEffect(() => {
     if (stationCodes.length > 0) {
       setStations(stationCodes);
@@ -190,6 +190,9 @@ export default function Deliveries() {
           }}
         />
       </Box>
+      <div ref={contentRef}>
+        <PrintDeliveries station={station} date={date} data={rows} />
+      </div>
     </PageContainer>
   );
 }

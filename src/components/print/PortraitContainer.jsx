@@ -4,13 +4,12 @@ export default function PortraitContainer({ children }) {
   return (
     <Box
       sx={{
-        p: 2,
-        // width: "100%",
-        width: "816px",
-        // height: "1054px",
+        display: "none",
         "@media print": {
           p: 2,
           m: 0,
+          display: "block",
+          width: "816px",
           overflow: "hidden",
           // height: "1054px",
           "@page": {

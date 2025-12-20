@@ -9,10 +9,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Fragment, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import PortraitContainer from "./PortraitContainer";
-import { getDeliveries } from "../../lib/client";
 dayjs.extend(customParseFormat);
 
 const TableCellHeader = ({ children, sx, ...props }) => (
@@ -49,29 +46,7 @@ const TableCellBody = ({ children, sx, ...props }) => (
   </TableCell>
 );
 
-export default function DeliveryReceipt() {
-  const { date, station } = useParams();
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    if (date && station) {
-      (async () => {
-        try {
-          const { data } = await getDeliveries({
-            invoiceCode: station,
-            date,
-          });
-          setData(data);
-        } catch (e) {
-          console.error(e);
-        }
-      })();
-    }
-  }, [date, station]);
-
-  if (!data) {
-    return;
-  }
-
+export default function DeliveryReceipt({ date, station, data }) {
   const day = dayjs(date, "MMDDYYYY");
 
   return (
@@ -91,7 +66,7 @@ export default function DeliveryReceipt() {
             letterSpacing: 0,
           }}
         >
-          {day.format("MM/DD") + " "}
+          {day.format("MM/DD/YYYY") + " "}
           {station} Med List
         </Typography>
       </div>
