@@ -12,7 +12,8 @@ import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
 import ColorModeSelect from "../shared-theme/ColorModeSelect";
 import Logo from "../Logo";
-import { postLogin } from "../../lib/client";
+import useSWRMutation from "swr/mutation";
+import { post } from "../../lib/api";
 import { enqueueSnackbar } from "notistack";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../reduxjs@toolkit/global";
@@ -68,69 +69,55 @@ export default function SignIn() {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
 
-  const handleSubmit = async (event) => {
+  const { trigger } = useSWRMutation("auth/login", post);
+
+  const handleSubmit = React.useCallback((event) => {
     event.preventDefault();
-    if (usernameError || passwordError) {
-      return;
-    }
     const data = new FormData(event.currentTarget);
-    try {
-      const result = await postLogin({
-        username: data.get("username"),
-        password: data.get("password"),
-      });
-      const { refresh_token, access_token, _id } = result.data;
-      localStorage.setItem("elcamino_client_access_token", access_token);
-      localStorage.setItem("elcamino_client_refresh_token", refresh_token);
-      dispatch(setUser(_id));
-      navigate("/dashboard");
-    } catch (e) {
-      const { message, status } = e;
-      let msg = message;
-      switch (status) {
-        case 401:
-          msg = "Unauthorized";
-          break;
-        case 409:
-          msg = "User already logged in.";
-          break;
-        default:
-          if (!msg) {
-            msg = "Network Error";
-          }
-      }
-      enqueueSnackbar(msg, {
-        variant: "error",
-      });
-    }
-  };
-
-  const validateInputs = () => {
-    const username = document.getElementById("username");
-    const password = document.getElementById("password");
-
-    let isValid = true;
-
-    if (!username.value) {
+    const username = data.get("username");
+    const password = data.get("password");
+    if (!username) {
       setUsernameError(true);
       setUsernameErrorMessage("Please enter a valid username.");
-      isValid = false;
-    } else {
-      setUsernameError(false);
-      setUsernameErrorMessage("");
-    }
-
-    if (!password.value) {
+      return;
+    } else if (!password) {
       setPasswordError(true);
       setPasswordErrorMessage("Please enter a valid password.");
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
+      return;
     }
-
-    return isValid;
-  };
+    trigger(
+      { username, password },
+      {
+        onSuccess: (data) => {
+          const { refresh_token, access_token, _id } = data;
+          localStorage.setItem("elcamino_client_access_token", access_token);
+          localStorage.setItem("elcamino_client_refresh_token", refresh_token);
+          dispatch(setUser(_id));
+          navigate("/dashboard/deliveries");
+        },
+        onError: (error) => {
+          const { message, status } = error;
+          let msg = message;
+          switch (status) {
+            case 401:
+              msg = "Unauthorized";
+              break;
+            case 409:
+              msg = "User already logged in.";
+              break;
+            default:
+              if (!msg) {
+                msg = "Network Error";
+              }
+          }
+          enqueueSnackbar(msg, {
+            variant: "error",
+          });
+        },
+        throwOnError: false,
+      }
+    );
+  }, []);
 
   return (
     <SignInContainer direction="column" justifyContent="space-between">
@@ -190,12 +177,7 @@ export default function SignIn() {
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            onClick={validateInputs}
-          >
+          <Button type="submit" fullWidth variant="contained">
             Sign in
           </Button>
         </Box>

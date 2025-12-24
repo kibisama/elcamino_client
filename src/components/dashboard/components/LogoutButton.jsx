@@ -1,16 +1,15 @@
 import React from "react";
 import MenuButton from "./MenuButton";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import { logout } from "../../../lib/api";
 
 export default function LogoutButton() {
-  const handleClick = React.useCallback(() => {}, []);
   return (
     <MenuButton
       aria-label="Open menu"
-      onClick={handleClick}
+      onClick={logout}
       sx={{ borderColor: "transparent" }}
     >
-      {" "}
       <LogoutRoundedIcon fontSize="small" />
     </MenuButton>
   );

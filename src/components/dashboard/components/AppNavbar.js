@@ -38,7 +38,7 @@ export default function AppNavbar() {
 
   return (
     <AppBar
-      position="fixed"
+      position="sticky"
       sx={{
         display: { xs: "auto", md: "none" },
         boxShadow: 0,

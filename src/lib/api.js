@@ -17,7 +17,7 @@ client.interceptors.request.use(
   (e) => Promise.reject(e)
 );
 client.interceptors.response.use(
-  (res) => res,
+  (res) => res.data,
   async (error) => {
     const originalRequest = error.config;
     if (error.response?.status === 419 && !originalRequest._retry) {
@@ -26,9 +26,7 @@ client.interceptors.response.use(
         const refresh_token = localStorage.getItem(
           "elcamino_client_refresh_token"
         );
-        const response = await refreshToken({
-          refresh_token,
-        });
+        const response = await client.post("auth", { refresh_token });
         const { access_token, refresh_token: new_refresh_token } =
           response.data;
         localStorage.setItem("elcamino_client_access_token", access_token);
@@ -41,7 +39,6 @@ client.interceptors.response.use(
         ] = `Bearer ${access_token}`;
         return client(originalRequest);
       } catch (refreshError) {
-        console.error("Token refresh failed:", refreshError);
         localStorage.removeItem("elcamino_client_access_token");
         localStorage.removeItem("elcamino_client_refresh_token");
         window.location.href = "/signin";
@@ -52,9 +49,11 @@ client.interceptors.response.use(
   }
 );
 
-export const refreshToken = (body) => client.post("auth", body);
-export const postLogin = (body) => client.post("auth/login", body);
-export const getUser = () => client.get("user/info");
-export const getDeliveries = ({ invoiceCode, date }) =>
-  client.get(`user/deliveries/${invoiceCode}/${date}`);
-export const getLogout = () => client.get("auth/logout");
+export const post = (url, { arg }) => client.post(url, arg);
+export const get = (url) => client.get(url);
+export const logout = () => {
+  //
+  localStorage.removeItem("elcamino_client_access_token");
+  localStorage.removeItem("elcamino_client_refresh_token");
+  window.location.href = "/signin";
+};

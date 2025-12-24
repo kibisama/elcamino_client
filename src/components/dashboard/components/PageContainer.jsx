@@ -1,7 +1,4 @@
-"use client";
-
 import { styled } from "@mui/material/styles";
-import { useMediaQuery } from "@mui/material";
 import Box from "@mui/material/Box";
 import Breadcrumbs, { breadcrumbsClasses } from "@mui/material/Breadcrumbs";
 import Container from "@mui/material/Container";
@@ -53,11 +50,8 @@ function PageContainer({
   actions = null,
   extraActions = null,
 }) {
-  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery((theme) => theme.breakpoints.down("md"));
   return (
     <Container sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      {isTablet && <Box height={isMobile ? "61px" : "65px"} />}
       <Stack sx={{ flex: 1, my: 2 }} spacing={2}>
         <Stack>
           <PageHeaderBreadcrumbs

@@ -6,7 +6,7 @@ export default function PortraitContainer({ children }) {
       sx={{
         display: "none",
         "@media print": {
-          p: 2,
+          p: 1,
           m: 0,
           display: "block",
           width: "816px",

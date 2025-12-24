@@ -3,7 +3,8 @@ import dayjs from "dayjs";
 import { Box, Stack, Select, MenuItem, IconButton } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import PageContainer from "./PageContainer";
-import { getDeliveries } from "../../../lib/client";
+import { get } from "../../../lib/api";
+import useSWR from "swr";
 import { enqueueSnackbar } from "notistack";
 import CustomDatePicker from "./CustomDatePicker";
 import { useSelector } from "react-redux";
@@ -15,46 +16,41 @@ import { useReactToPrint } from "react-to-print";
 const rowHeight = 52;
 
 export default function Deliveries() {
+  const { stationCodes: stations } = useSelector((s) => s.global);
   const [rows, setRows] = React.useState([]);
   const [date, setDate] = React.useState(dayjs());
-  const [stations, setStations] = React.useState([]);
-  const [station, setStation] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
-  const { stationCodes } = useSelector((s) => s.global);
-  const contentRef = React.useRef(null);
-  const handlePrint = useReactToPrint({ contentRef });
-  React.useEffect(() => {
-    if (stationCodes.length > 0) {
-      setStations(stationCodes);
-      setStation(stationCodes[0]);
-    }
-  }, [stationCodes]);
+  const [station, setStation] = React.useState(stations[0] || "");
+  const [print, setPrint] = React.useState(false);
 
-  const getRows = React.useCallback(() => {
-    if (date && station) {
-      setIsLoading(true);
-      (async () => {
-        try {
-          const { data } = await getDeliveries({
-            invoiceCode: station,
-            date: date.format("MMDDYYYY"),
-          });
-          setRows(data);
-          setIsLoading(false);
-        } catch (e) {
-          if (e.status !== 404) {
-            console.error(e);
-            enqueueSnackbar(e.message, { variant: "error" });
-          }
-          setRows([]);
-          setIsLoading(false);
+  const contentRef = React.useRef(null);
+  const reactToPrint = useReactToPrint({
+    contentRef,
+    onAfterPrint: () => setPrint(false),
+  });
+  React.useEffect(
+    function handlePrint() {
+      print && reactToPrint();
+    },
+    [print]
+  );
+
+  const { data, isLoading, error, mutate } = useSWR(
+    station ? `user/deliveries/${station}/${date.format("MMDDYYYY")}` : null,
+    get
+  );
+  React.useEffect(
+    function handleData() {
+      if (error) {
+        if (error.status !== 404) {
+          enqueueSnackbar(error.message, { variant: "error" });
         }
-      })();
-    }
-  }, [date, station]);
-  React.useEffect(() => {
-    getRows();
-  }, [getRows]);
+        setRows([]);
+      } else if (data) {
+        setRows(data);
+      }
+    },
+    [data, error]
+  );
 
   const columns = React.useMemo(
     () => [
@@ -122,9 +118,6 @@ export default function Deliveries() {
       }
     }
   }, []);
-  const handleChangeStation = React.useCallback((e) => {
-    setStation(e.target.value);
-  }, []);
 
   return (
     <PageContainer
@@ -135,7 +128,7 @@ export default function Deliveries() {
             disabled={rows.length === 0}
             size="small"
             aria-label="print"
-            onClick={handlePrint}
+            onClick={() => setPrint(true)}
           >
             <PrintIcon />
           </IconButton>
@@ -143,7 +136,7 @@ export default function Deliveries() {
             disabled={isLoading}
             size="small"
             aria-label="refresh"
-            onClick={getRows}
+            onClick={() => mutate()}
           >
             <RefreshIcon />
           </IconButton>
@@ -155,7 +148,7 @@ export default function Deliveries() {
           <Select
             size="small"
             value={station}
-            onChange={handleChangeStation}
+            onChange={(e) => setStation(e.target.value)}
             name="station"
             sx={{ width: "22ch" }}
           >
@@ -190,9 +183,11 @@ export default function Deliveries() {
           }}
         />
       </Box>
-      <div ref={contentRef}>
-        <PrintDeliveries station={station} date={date} data={rows} />
-      </div>
+      {print && (
+        <div ref={contentRef}>
+          <PrintDeliveries station={station} date={date} data={rows} />
+        </div>
+      )}
     </PageContainer>
   );
 }

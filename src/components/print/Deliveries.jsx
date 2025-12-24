@@ -46,7 +46,7 @@ const TableCellBody = ({ children, sx, ...props }) => (
   </TableCell>
 );
 
-export default function DeliveryReceipt({ date, station, data }) {
+export default function PrintDeliveries({ date, station, data }) {
   const day = dayjs(date, "MMDDYYYY");
 
   return (

@@ -11,12 +11,13 @@ import MenuButton from "./MenuButton";
 import MenuContent from "./MenuContent";
 import CardAlert from "./CardAlert";
 import { useSelector } from "react-redux";
+import { logout } from "../../../lib/api";
 
 function SideMenuMobile({ open, toggleDrawer }) {
   const { name, id } = useSelector((s) => s.global);
   return (
     <Drawer
-      anchor="right"
+      anchor="left"
       open={open}
       onClose={toggleDrawer(false)}
       sx={{
@@ -60,6 +61,7 @@ function SideMenuMobile({ open, toggleDrawer }) {
         {/* <CardAlert /> */}
         <Stack sx={{ p: 2 }}>
           <Button
+            onClick={logout}
             variant="outlined"
             fullWidth
             startIcon={<LogoutRoundedIcon />}
