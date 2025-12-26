@@ -26,9 +26,8 @@ client.interceptors.response.use(
         const refresh_token = localStorage.getItem(
           "elcamino_client_refresh_token"
         );
-        const response = await client.post("auth", { refresh_token });
-        const { access_token, refresh_token: new_refresh_token } =
-          response.data;
+        const data = await client.post("auth", { refresh_token });
+        const { access_token, refresh_token: new_refresh_token } = data;
         localStorage.setItem("elcamino_client_access_token", access_token);
         localStorage.setItem(
           "elcamino_client_refresh_token",
