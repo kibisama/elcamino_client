@@ -1,7 +1,7 @@
 import * as React from "react";
 import dayjs from "dayjs";
 import { Box, Stack, Select, MenuItem, IconButton } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import PageContainer from "./PageContainer";
 import { get } from "../../../lib/api";
 import useSWR from "swr";
@@ -16,10 +16,12 @@ import { useReactToPrint } from "react-to-print";
 const rowHeight = 52;
 
 export default function Deliveries() {
+  const apiRef = useGridApiRef();
   const { stationCodes: stations } = useSelector((s) => s.global);
   const [rows, setRows] = React.useState([]);
   const [date, setDate] = React.useState(dayjs());
   const [station, setStation] = React.useState(stations[0] || "");
+  const [disabledPrint, setDisabledPrint] = React.useState(true);
   const [print, setPrint] = React.useState(false);
 
   const contentRef = React.useRef(null);
@@ -118,6 +120,22 @@ export default function Deliveries() {
       }
     }
   }, []);
+  const handleChangeSelectionModel = React.useCallback(
+    (selectionModel, details) => {
+      if (selectionModel.type === "include") {
+        if (selectionModel.ids.size === 0) {
+          setDisabledPrint(true);
+        } else {
+          setDisabledPrint(false);
+        }
+      } else if (details.api.getRowsCount() === selectionModel.ids.size) {
+        setDisabledPrint(true);
+      } else {
+        setDisabledPrint(false);
+      }
+    },
+    []
+  );
 
   return (
     <PageContainer
@@ -125,7 +143,7 @@ export default function Deliveries() {
       actions={
         <Stack direction="row" alignItems="center" spacing={1}>
           <IconButton
-            disabled={rows.length === 0}
+            disabled={disabledPrint}
             size="small"
             aria-label="print"
             onClick={() => setPrint(true)}
@@ -161,6 +179,10 @@ export default function Deliveries() {
     >
       <Box sx={{ flex: 1, width: "100%" }}>
         <DataGrid
+          apiRef={apiRef}
+          checkboxSelection
+          onRowSelectionModelChange={handleChangeSelectionModel}
+          disableRowSelectionExcludeModel
           autoPageSize
           columns={columns}
           rows={rows}
@@ -185,7 +207,11 @@ export default function Deliveries() {
       </Box>
       {print && (
         <div ref={contentRef}>
-          <PrintDeliveries station={station} date={date} data={rows} />
+          <PrintDeliveries
+            station={station}
+            date={date}
+            data={rows.filter((row) => apiRef.current?.isRowSelected(row.id))}
+          />
         </div>
       )}
     </PageContainer>
