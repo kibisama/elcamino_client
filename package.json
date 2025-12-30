@@ -28,7 +28,8 @@
     "react-scripts": "5.0.1",
     "react-to-print": "^3.2.0",
     "swr": "^2.3.8",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "x-data-grid": "^2.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -122,13 +122,7 @@ export default function Deliveries() {
   }, []);
   const handleChangeSelectionModel = React.useCallback(
     (selectionModel, details) => {
-      if (selectionModel.type === "include") {
-        if (selectionModel.ids.size === 0) {
-          setDisabledPrint(true);
-        } else {
-          setDisabledPrint(false);
-        }
-      } else if (details.api.getRowsCount() === selectionModel.ids.size) {
+      if (selectionModel.ids.size === 0) {
         setDisabledPrint(true);
       } else {
         setDisabledPrint(false);
