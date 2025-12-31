@@ -130,3 +130,8 @@ export const dataGridCustomizations = {
       columnHeaderTitleContainer: {
         flexGrow: 1,
         justifyContent: "space-between",
+      },
+      columnHeaderDraggableContainer: { paddingRight: 2 },
+    },
+  },
+};
