@@ -8,17 +8,24 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { setUserData } from "../../reduxjs@toolkit/global";
 import useSWR from "swr";
 
-export default function Dashboard(props) {
-  const dispatch = useDispatch();
+export default function Dashboard() {
   const navigate = useNavigate();
-
-  const { data, error } = useSWR("user/info", get);
-  if (!data || error) {
-    return navigate("/signin");
-  }
-
-  const { id, name, stationCodes } = data;
-  dispatch(setUserData({ id, name, stationCodes }));
+  const dispatch = useDispatch();
+  const refresh_token = localStorage.getItem("elcamino_client_refresh_token");
+  const { data, error } = useSWR(refresh_token ? "user/info" : null, get);
+  React.useEffect(
+    function setUser() {
+      if (data) {
+        const { id, name, stationCodes } = data;
+        dispatch(setUserData({ id, name, stationCodes }));
+      } else if (error) {
+        localStorage.removeItem("elcamino_client_access_token");
+        localStorage.removeItem("elcamino_client_refresh_token");
+        navigate("/signin");
+      }
+    },
+    [data, error]
+  );
 
   return (
     <Box

@@ -15,8 +15,6 @@ import Logo from "../Logo";
 import useSWRMutation from "swr/mutation";
 import { post } from "../../lib/api";
 import { enqueueSnackbar } from "notistack";
-import { useDispatch } from "react-redux";
-import { setUser } from "../../reduxjs@toolkit/global";
 import { useNavigate } from "react-router-dom";
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -63,7 +61,7 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
   const [usernameError, setUsernameError] = React.useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
@@ -89,10 +87,9 @@ export default function SignIn() {
       { username, password },
       {
         onSuccess: (data) => {
-          const { refresh_token, access_token, _id } = data;
+          const { refresh_token, access_token } = data;
           localStorage.setItem("elcamino_client_access_token", access_token);
           localStorage.setItem("elcamino_client_refresh_token", refresh_token);
-          dispatch(setUser(_id));
           navigate("/dashboard/deliveries");
         },
         onError: (error) => {
@@ -180,6 +177,19 @@ export default function SignIn() {
           <Button type="submit" fullWidth variant="contained">
             Sign in
           </Button>
+          <div
+            style={{
+              alignSelf: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Typography>© 2026 Elcamino Pharmacy Inc.</Typography>
+            <Typography fontSize={11} sx={{ color: "text.secondary" }}>
+              Designed with MUI v7
+            </Typography>
+          </div>
         </Box>
       </Card>
     </SignInContainer>

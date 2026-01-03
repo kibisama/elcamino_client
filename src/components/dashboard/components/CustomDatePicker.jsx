@@ -1,5 +1,4 @@
 import * as React from "react";
-import dayjs from "dayjs";
 import { useForkRef } from "@mui/material/utils";
 import Button from "@mui/material/Button";
 import CalendarTodayRoundedIcon from "@mui/icons-material/CalendarTodayRounded";
@@ -21,10 +20,11 @@ function ButtonField(props) {
     pickerContext.value == null
       ? parsedFormat
       : pickerContext.value.format(pickerContext.fieldFormat);
-
+  const { id, slots } = forwardedProps;
   return (
     <Button
-      {...forwardedProps}
+      id={id}
+      slots={slots}
       variant="outlined"
       ref={handleRef}
       size="small"
@@ -38,20 +38,14 @@ function ButtonField(props) {
 }
 
 export default function CustomDatePicker({ ...props }) {
-  // const [value, setValue] = React.useState(dayjs("2023-04-17"));
-
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <DatePicker
-        // value={value}
-        // label={value == null ? null : value.format("MMM DD, YYYY")}
-        // onChange={(newValue) => setValue(newValue)}
         slots={{ field: ButtonField }}
         slotProps={{
           nextIconButton: { size: "small" },
           previousIconButton: { size: "small" },
         }}
-        // views={['day', 'month', 'year']}
         {...props}
       />
     </LocalizationProvider>

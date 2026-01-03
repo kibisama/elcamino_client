@@ -29,6 +29,14 @@ export default function Deliveries() {
     contentRef,
     onAfterPrint: () => setPrint(false),
   });
+
+  React.useEffect(
+    function setDefaultStation() {
+      stations.length > 0 && setStation(stations[0]);
+    },
+    [stations]
+  );
+
   React.useEffect(
     function handlePrint() {
       print && reactToPrint();
@@ -37,7 +45,9 @@ export default function Deliveries() {
   );
 
   const { data, isLoading, error, mutate } = useSWR(
-    station ? `user/deliveries/${station}/${date.format("MMDDYYYY")}` : null,
+    station && date instanceof dayjs
+      ? `user/deliveries/${station}/${date.format("MMDDYYYY")}`
+      : null,
     get
   );
   React.useEffect(

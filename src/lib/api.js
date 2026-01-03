@@ -1,10 +1,11 @@
 import axios from "axios";
 
-const client = axios.create();
-client.defaults.baseURL =
+const baseURL =
   process.env.NODE_ENV === "development"
     ? process.env.REACT_APP_API_URL
     : "/api";
+const client = axios.create();
+client.defaults.baseURL = baseURL;
 client.defaults.timeout = 5000;
 client.interceptors.request.use(
   (req) => {
